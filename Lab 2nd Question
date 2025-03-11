@@ -1,0 +1,80 @@
+typedef struct {
+    int* data;
+    int top;
+} MyStack;
+
+MyStack* myStackCreate() {
+    MyStack* stack = (MyStack*)malloc(sizeof(MyStack));
+    stack->data = (int*)malloc(100 * sizeof(int));
+    stack->top = -1;
+    return stack;
+}
+
+void myStackPush(MyStack* stack, int x) {
+    stack->data[++(stack->top)] = x;
+}
+
+int myStackPop(MyStack* stack) {
+    return stack->data[(stack->top)--];
+}
+
+int myStackTop(MyStack* stack) {
+    return stack->data[stack->top];
+}
+
+int myStackEmpty(MyStack* stack) {
+    return stack->top == -1;
+}
+
+void myStackFree(MyStack* stack) {
+    free(stack->data);
+    free(stack);
+}
+
+typedef struct {
+    MyStack* s1;
+    MyStack* s2;
+} MyQueue;
+
+MyQueue* myQueueCreate() {
+    MyQueue* queue = (MyQueue*)malloc(sizeof(MyQueue));
+    queue->s1 = myStackCreate();
+    queue->s2 = myStackCreate();
+
+    return queue;
+}
+
+void myQueuePush(MyQueue* queue, int x) {
+    myStackPush(queue->s1, x);
+}
+
+int myQueuePop(MyQueue* queue) {
+    if (myStackEmpty(queue->s2)) {
+        while (!myStackEmpty(queue->s1)) {
+            myStackPush(queue->s2, myStackPop(queue->s1));
+        }
+    }
+
+    return myStackPop(queue->s2);
+}
+
+int myQueuePeek(MyQueue* queue) {
+    if (myStackEmpty(queue->s2)) {
+        while (!myStackEmpty(queue->s1)) {
+            myStackPush(queue->s2, myStackPop(queue->s1));
+        }
+    }
+
+    return myStackTop(queue->s2);
+}
+
+int myQueueEmpty(MyQueue* queue) {
+    return myStackEmpty(queue->s1) && myStackEmpty(queue->s2);
+}
+
+void myQueueFree(MyQueue* queue) {
+    myStackFree(queue->s1);
+    myStackFree(queue->s2);
+
+    free(queue);
+}
